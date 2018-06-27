@@ -1,0 +1,392 @@
+﻿@using Model.ViewModel
+@using Model.EF;
+@model List<ProductViewModel>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+<br />
+<br />
+<br />
+<div class="products">
+    <div class="container">
+        <div id="loadingAdd" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" style="top: 250px; left: 550px">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <h3 style="color: white"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></h3>
+            </div>
+        </div>
+        <div class="col-md-9 product-w3ls-right">
+            <!-- breadcrumbs -->
+            <ol class="breadcrumb breadcrumb1">
+                <li><a href="/">Home</a></li>
+                <li class="active">@ViewBag.NameCategory</li>
+            </ol>
+            <div class="clearfix"> </div>
+            <!-- //breadcrumbs -->
+            <div class="product-top">
+                <h4>@ViewBag.NameCategory</h4>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="products-row">
+                @if (Model.Count == 0)
+                {
+                    <h2 style="color: red; margin: 20px;"><i>No available here!!!</i></h2>
+                }
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-3 product-grids">
+                        <div class="agile-products">
+                            @*<div class="new-tag"><h6>1%<br>Off</h6></div>*@
+                            <a href="/detail/@item.MetaTitle-@item.ID"><img style="width: 130px; height: 130px;" src="@item.Image" class="img-responsive" alt="img"></a>
+                            <div class="agile-product-text">
+                                <h5 style="height: 75px; overflow: hidden"><a href="/detail/@item.MetaTitle-@item.ID">@item.Name</a></h5>
+                                <h6>Price: $@item.Price</h6>
+                                <button type="submit" onclick="addCart(@item.ID)" class="w3ls-cart pw3ls-cart"><i class="fa fa-cart-plus" aria-hidden="true"></i> Add to cart</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <script>
+                    function addCart(idProduct) {
+                        $("#loadingAdd").modal("toggle");
+                        $.ajax({
+                            url: "/Cart/AddItem/",
+                            type: "get",
+                            data: {
+                                productID: idProduct,
+                                quantity: 1
+                            },
+                            success: function (result) {
+                                if (result.added) {
+                                    $("#loadingAdd").modal("toggle");
+                                    addToCartSuccess();
+                                };
+                            },
+                            error: function () {
+                                $("#loadingAdd").modal("toggle");
+                                error();
+                            }
+                        });
+                    }
+                </script>
+
+                <div class="clearfix"> </div>
+                @if (ViewBag.TotalPage > 1)
+                {
+                    int pageDisplay = (int)ViewBag.MaxPage;
+                    int totalPage = (int)ViewBag.TotalPage;
+                    int currentPage = (int)ViewBag.currentPage;
+
+                    var startPageIndex = Math.Max(1, currentPage - pageDisplay / 2);
+                    var endPageIndex = Math.Min(totalPage, currentPage + pageDisplay / 2);
+
+                    var link = "/category/" + ViewBag.MetaTitle + "-" + ViewBag.ID + "?page=";
+                    bool isQuery = false;
+                    string nameQuery = "", brandQuery = "", priceQuery = "";
+                    <!-- pagination -->
+                    <div class="pagination">
+                        <ul class="pagination">
+                            
+                            @if (ViewBag.NameSearch == null && ViewBag.SelectedBrandID == null && ViewBag.SelectedPriceSearch == null)
+                            {
+                                isQuery = false;
+                            }
+                            else
+                            {
+                                isQuery = true;
+                                if (ViewBag.NameSearch != null)
+                                {
+                                    nameQuery = "&name=" + @ViewBag.NameSearch;
+                                }
+
+                                if (ViewBag.SelectedBrandID != null)
+                                {
+                                    string[] list = (string [])ViewBag.SelectedBrandID;
+                                    for (int i = 0; i < list.Count(); i++)
+                                    {
+                                        brandQuery += "&brandID="+ list[i];
+                                    }
+                                }
+
+                                if (ViewBag.SelectedPriceSearch != null)
+                                {
+                                    string[] list = (string[])ViewBag.SelectedPriceSearch;
+                                    for (int i = 0; i < list.Count(); i++)
+                                    {
+                                        priceQuery += "&priceSearch=" + list[i];
+                                    }
+                                }
+
+                            }
+
+                            @if (currentPage > ViewBag.FirstPage)
+                            {
+                                if (!isQuery)
+                                {
+                                    <li><a href="@link@ViewBag.PreviousPage&filter=@ViewBag.SelectedFilter">«</a></li>
+                                }
+                                else
+                                {
+                                    <li><a href="@link@ViewBag.PreviousPage@nameQuery@brandQuery@priceQuery&filter=@ViewBag.SelectedFilter">«</a></li>
+                                }
+                            }
+                            @for (int i = startPageIndex; i <= endPageIndex; i++)
+                            {
+                                if (currentPage == i)
+                                {
+                                    if (!isQuery)
+                                    {
+                                        <li class="active"><a href="@link@i&filter=@ViewBag.SelectedFilter">@i</a></li>
+                                    }
+                                    else
+                                    {
+
+                                        <li class="active"><a href="@link@i@nameQuery@brandQuery@priceQuery&filter=@ViewBag.SelectedFilter">@i</a></li>
+                                    }
+                                }
+                                else
+                                {
+                                    if (!isQuery)
+                                    {
+                                        <li><a href="@link@i&filter=@ViewBag.SelectedFilter">@i</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="@link@i@nameQuery@brandQuery@priceQuery&filter=@ViewBag.SelectedFilter">@i</a></li>
+                                    }
+                                }
+                            }
+                            @if (currentPage < ViewBag.LastPage)
+                            {
+                                if (!isQuery)
+                                {
+                                    <li><a href="@link@ViewBag.NextPage&filter=@ViewBag.SelectedFilter">»</a></li>
+                                }
+                                else
+                                {
+                                    <li><a href="@link@ViewBag.NextPage@nameQuery@brandQuery@priceQuery&filter=@ViewBag.SelectedFilter">»</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+            <!-- add-products -->
+            <div class="w3ls-add-grids w3agile-add-products">
+                <a href="#">
+                    <h4>TOP 10 TRENDS FOR YOU FLAT <span>20%</span> OFF</h4>
+                    <h6>Shop now <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></h6>
+                </a>
+            </div>
+            <!-- //add-products -->
+        </div>
+        <div class="col-md-3 rsidebar">
+            <form action="/category/@ViewBag.MetaTitle-@ViewBag.ID" method="get">
+                <div class="rsidebar-top">
+                    <div class="sidebar-row">
+                        <h4>Name</h4>
+                        <input type="text" name="name" value="@ViewBag.NameSearch" placeholder="Name of product..." class="form-control" />
+                    </div>
+                    <div class="sidebar-row">
+                        <ul class="faq">
+                            @* load Price *@
+                            <li class="item1">
+                                <a href="#" class="">Price<span class="glyphicon glyphicon-menu-down"></span></a>
+                                @if (Model.Count != 0)
+                                {
+                                    <ul style="display: none;">
+                                        @foreach (KeyValuePair<int, string> kvp in ViewBag.SearchPrice)
+                                        {
+                                            if (ViewBag.SelectedPriceSearch != null)
+                                            {
+                                                var list = (string[])ViewBag.SelectedPriceSearch;
+                                                int check = 0;
+                                                for (int i = 0; i < list.Count(); i++)
+                                                {
+                                                    if (list[i].Equals(kvp.Key.ToString()))
+                                                    {
+                                                        check = 1;
+                                                        break;
+                                                    }
+                                                }
+                                                if (check == 1)
+                                                {
+                                                    <li class="subitem1">
+                                                        <label class="checkbox"><input type="checkbox" checked value="@kvp.Key" name="priceSearch"><i></i>@kvp.Value </label>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="subitem1">
+                                                        <label class="checkbox"><input type="checkbox" value="@kvp.Key" name="priceSearch"><i></i>@kvp.Value </label>
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <li class="subitem1">
+                                                    <label class="checkbox"><input type="checkbox" value="@kvp.Key" name="priceSearch"><i></i>@kvp.Value </label>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="sidebar-row">
+                        <ul class="faq">
+                            @* load brands *@
+                            <li class="item1">
+                                <a href="#" class="">Brands<span class="glyphicon glyphicon-menu-down"></span></a>
+                                @if (Model.Count != 0)
+                                {
+                                    <ul style="display: none;">
+                                        @foreach (Brand item in ViewBag.ListBrand)
+                                        {
+                                            if (ViewBag.SelectedBrandID != null)
+                                            {
+                                                var list = ((string[])ViewBag.SelectedBrandID);
+                                                int check = 0;
+                                                for (int i = 0; i < list.Count(); i++)
+                                                {
+                                                    if (list[i].Equals(item.ID.ToString()))
+                                                    {
+                                                        check = 1;
+                                                        break;
+                                                    }
+                                                }
+                                                if (check == 1)
+                                                {
+                                                    <li class="subitem1">
+                                                        <label class="checkbox"><input type="checkbox" checked value="@item.ID" name="brandID"><i></i>@item.Name</label>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="subitem1">
+                                                        <label class="checkbox"><input type="checkbox" value="@item.ID" name="brandID"><i></i>@item.Name</label>
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <li class="subitem1">
+                                                    <label class="checkbox"><input type="checkbox" value="@item.ID" name="brandID"><i></i>@item.Name</label>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="sidebar-row">
+                        <ul class="faq">
+                            @* load filter *@
+                            <li class="item1">
+                                <a href="#" class="">Filter<span class="glyphicon glyphicon-menu-down"></span></a>
+                                @if (Model.Count != 0)
+                                {
+                                    <ul style="display: none;">
+                                        @foreach (KeyValuePair<int, string> kvp in ViewBag.ListFilter)
+                                        {
+                                            <li class="subitem1">
+                                                <input type="radio" value="@kvp.Key" @(kvp.Key == ViewBag.SelectedFilter ? "checked" : "") name="filter" /> @kvp.Value
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                    @if (Model.Count != 0)
+                    {
+                        <button class="btn btn-default" style="margin-top: 20px; width: 100%" type="submit">Search</button>
+                        <button class="btn btn-default" style="margin-top: 20px; width: 100%" type="reset" onclick="location.href = '@HttpContext.Current.Request.Url.AbsolutePath'">Reset</button>
+                    }
+                </div>
+            </form>
+            <!-- script for tabs -->
+            <script type="text/javascript">
+                $(function () {
+
+                    var menu_ul = $('.faq > li > ul'),
+                           menu_a = $('.faq > li > a');
+
+                    menu_ul.hide();
+
+                    menu_a.click(function (e) {
+                        e.preventDefault();
+                        if (!$(this).hasClass('active')) {
+                            menu_a.removeClass('active');
+                            menu_ul.filter(':visible').slideUp('normal');
+                            $(this).addClass('active').next().stop(true, true).slideDown('normal');
+                        } else {
+                            $(this).removeClass('active');
+                            $(this).next().stop(true, true).slideUp('normal');
+                        }
+                    });
+
+                });
+            </script>
+            <!-- script for tabs -->
+        </div>
+        <div class="clearfix"> </div>
+    </div>
+</div>
+
+<!-- footer-top -->
+<div class="w3agile-ftr-top">
+    <div class="container">
+        <div class="ftr-toprow">
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-truck" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>FREE DELIVERY</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>CUSTOMER CARE</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>GOOD QUALITY</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+</div>
+<!-- //footer-top -->   
+
+<script>
+    function addToCartSuccess() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Added to cart');
+    }
+    function error() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.error('Error!!!');
+    }
+</script>

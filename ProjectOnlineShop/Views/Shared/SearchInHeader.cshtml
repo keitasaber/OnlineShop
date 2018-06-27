@@ -1,0 +1,105 @@
+﻿
+@{
+    ViewBag.Title = "SearchInHeader";
+}
+<div class="header" style="position: relative">
+    <div class="header-two">
+        <!-- header-two -->
+        <div class="container">
+            <div class="header-logo">
+                <h1><a href="/"><span>Q</span>uick <i>Buy</i></a></h1>
+            </div>
+            <div class="header-search">
+                <form action="/Search" method="get">
+                    <input type="search" id="name-search" name="name" placeholder="General search for product by name" required="">
+                    <div id="result-search" style="width:100% ;position: absolute; background: white; border: 1px solid #f1f1f1; display: none">
+                        <a href="#">
+                            <div class="post-container">
+                                <div class="post-thumb">
+                                    <img src="https://cdn3.tgdd.vn/Products/Images/55/69973/the-nho-microsd-16gb-class-10-7-300x300.jpg" />
+                                </div>
+                                <div class="post-content">
+                                    <p>post desc post desc post desc post desc post desc post desc esc post desc postesc </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <button type="submit" class="btn btn-default" aria-label="Left Align">
+                        <i class="fa fa-search" aria-hidden="true"> </i>
+                    </button>
+                </form>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $("#name-search").focusout(function () {
+                        $("#result-search").fadeOut();
+                    })
+
+                    $("#name-search").on("paste keyup keypess", function () {
+                        $("#result-search").fadeIn();
+                        search($(this).val());
+                    })
+
+                    //$("#name-search").keydo(function () {
+                    //    $("#result-search").fadeIn();
+                    //    search($(this).val());
+                    //})
+
+                    function search(name) {
+                        if (name == "") {
+                            $("#result-search").fadeOut();
+                            $("#result-search").html("");
+                            return;
+                        }
+                        $.ajax({
+                            url: "/ChildAction/GetSearch",
+                            dataType: "json",
+                            type: "get",
+                            data: {
+                                test: name
+                            },
+                            success: function (data) {
+                                if(data.success){
+                                    handleData(data.data)
+                                }
+                            },
+                            error: function () {
+                            }
+                        });
+                    }
+
+                    function handleData(data) {
+                        var list = JSON.parse(data);
+                        var result = "";
+                        for(var i = 0; i < list.length; i++){
+                            result += '<a href="/detail/'+ list[i].MetaTitle + '-' + list[i].ID +'">';
+                            result += '<div class="post-container">';
+                            result += '<div class="post-thumb">';
+                            result += '<img src="' + list[i].Image + '" />';
+                            result += '</div>';
+                            result += '<div class="post-content">';
+                            result += '<p><b>' + list[i].Name + '</b></p>';
+                            result += '<p>$' + list[i].Price + '</p>';
+                            result += '</div>';
+                            result += '</div>';
+                            result += '</a>';
+                        }
+                        $("#result-search").html(result);
+                    }
+                })
+            </script>
+            <div class="header-cart">
+                <div class="cart">
+                    <button class="w3view-cart" type="button" name="submit" value="">
+                        <a href="/Cart"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
+                    </button>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div><!-- //header-two -->
+    @*@{ Html.RenderAction("CategoryInHeader", "ChildAction");}*@
+</div>
+

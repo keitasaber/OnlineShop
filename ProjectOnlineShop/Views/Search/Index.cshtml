@@ -1,0 +1,205 @@
+﻿@using Model.ViewModel
+@using Model.EF
+@model List<ProductViewModel>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+<div class="products">
+    <div class="container">
+        <div class="col-md-12 product-w3ls-right">
+            <!-- breadcrumbs -->
+            <ol class="breadcrumb breadcrumb1">
+                <li><a href="/">Home</a></li>
+                <li class="active">Search</li>
+            </ol>
+            <div class="clearfix"> </div>
+            <!-- //breadcrumbs -->
+            <div class="product-top">
+                <h4>@ViewBag.Name</h4>
+                <div class="clearfix"> </div>
+            </div>
+            <div id="loadingAdd" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" style="top: 250px; left: 550px">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <h3 style="color: white"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></h3>
+                </div>
+            </div>
+            <div class="products-row">
+                @if (Model.Count == 0)
+                {
+                    <h2 style="color: red; margin: 20px;"><i>No Available!!!</i></h2>
+                }
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-2 product-grids">
+                        <div class="agile-products">
+                            <a href="/detail/@item.MetaTitle-@item.ID"><img style="width: 130px; height: 130px;" src="@item.Image" class="img-responsive" alt="img"></a>
+                            <div class="agile-product-text">
+                                <h5 style="height: 75px; overflow: hidden"><a href="/detail/@item.MetaTitle-@item.ID">@item.Name</a></h5>
+                                <h6>Price: $@item.Price</h6>
+                                <button type="submit" onclick="addCart(@item.ID)" class="w3ls-cart pw3ls-cart"><i class="fa fa-cart-plus" aria-hidden="true"></i> Add to cart</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <script>
+                    function addCart(idProduct) {
+                        $("#loadingAdd").modal("toggle");
+                        $.ajax({
+                            url: "/Cart/AddItem/",
+                            type: "get",
+                            data: {
+                                productID: idProduct,
+                                quantity: 1
+                            },
+                            success: function (result) {
+                                if (result.added) {
+                                    $("#loadingAdd").modal("toggle");
+                                    addToCartSuccess();
+                                };
+                            },
+                            error: function () {
+                                $("#loadingAdd").modal("toggle");
+                                error();
+                            }
+                        });
+                    }
+                </script>
+
+                <div class="clearfix"> </div>
+                @if (ViewBag.TotalPage > 1)
+                {
+                    int pageDisplay = (int)ViewBag.MaxPage;
+                    int totalPage = (int)ViewBag.TotalPage;
+                    int currentPage = (int)ViewBag.currentPage;
+
+                    var startPageIndex = Math.Max(1, currentPage - pageDisplay / 2);
+                    var endPageIndex = Math.Min(totalPage, currentPage + pageDisplay / 2);
+
+                    var link = "/search?name=" + ViewBag.Name + "&page=";
+                    <!-- pagination -->
+                    <div class="pagination">
+                        <ul class="pagination">
+                            @if (currentPage > ViewBag.FirstPage)
+                            {
+                                <li><a href="@link@ViewBag.PreviousPage">«</a></li>
+                            }
+                            @for (int i = startPageIndex; i <= endPageIndex; i++)
+                            {
+                                if (currentPage == i)
+                                {
+                                    <li class="active"><a href="@link@i">@i</a></li>
+                                }
+                                else
+                                {
+                                    <li><a href="@link@i">@i</a></li>
+                                }
+                            }
+                            @if (currentPage < ViewBag.LastPage)
+                            {
+                                <li><a href="@link@ViewBag.NextPage">»</a></li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+            <!-- add-products -->
+            <div class="w3ls-add-grids w3agile-add-products">
+                <a href="#">
+                    <h4>TOP 10 TRENDS FOR YOU FLAT <span>20%</span> OFF</h4>
+                    <h6>Shop now <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></h6>
+                </a>
+            </div>
+            <!-- //add-products -->
+        </div>
+        
+        <div class="clearfix"> </div>
+    </div>
+</div>
+
+<!-- footer-top -->
+<div class="w3agile-ftr-top">
+    <div class="container">
+        <div class="ftr-toprow">
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-truck" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>FREE DELIVERY</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>CUSTOMER CARE</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="col-md-4 ftr-top-grids">
+                <div class="ftr-top-left">
+                    <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                </div>
+                <div class="ftr-top-right">
+                    <h4>GOOD QUALITY</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempus justo ac </p>
+                </div>
+                <div class="clearfix"> </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+</div>
+<!-- //footer-top -->
+<!-- subscribe -->
+<div class="subscribe">
+    <div class="container">
+        <div class="col-md-6 social-icons w3-agile-icons">
+            <h4>Keep in touch</h4>
+            <ul>
+                <li><a href="#" class="fa fa-facebook icon facebook"> </a></li>
+                <li><a href="#" class="fa fa-twitter icon twitter"> </a></li>
+                <li><a href="#" class="fa fa-google-plus icon googleplus"> </a></li>
+                <li><a href="#" class="fa fa-dribbble icon dribbble"> </a></li>
+                <li><a href="#" class="fa fa-rss icon rss"> </a></li>
+            </ul>
+            <ul class="apps">
+                <li><h4>Download Our app : </h4> </li>
+                <li><a href="#" class="fa fa-apple"></a></li>
+                <li><a href="#" class="fa fa-windows"></a></li>
+                <li><a href="#" class="fa fa-android"></a></li>
+            </ul>
+        </div>
+        <div class="col-md-6 subscribe-right">
+            <h4>Sign up for email and get 25%off!</h4>
+            <form action="#" method="post">
+                <input type="text" name="email" placeholder="Enter your Email..." required="">
+                <input type="submit" value="Subscribe">
+            </form>
+            <div class="clearfix"> </div>
+        </div>
+        <div class="clearfix"> </div>
+    </div>
+</div>
+<!-- //subscribe -->
+
+<script>
+    function addToCartSuccess() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Added to cart');
+    }
+    function error() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.error('Error!!!');
+    }
+</script>
+

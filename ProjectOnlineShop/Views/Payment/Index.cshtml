@@ -1,0 +1,232 @@
+﻿@model List<ProjectOnlineShop.Models.CartItem>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+
+<!-- breadcrumbs -->
+<div class="container">
+    <ol class="breadcrumb breadcrumb1">
+        <li><a href="/">Home</a></li>
+        <li class="active">Payment</li>
+    </ol>
+    <div class="clearfix"> </div>
+</div>
+<!-- //breadcrumbs -->
+
+<div class="container" style="margin-bottom: 50px;">
+    <div class="row">
+        <div class="col-md-6 col-md" style="margin-bottom: 30px;">
+            <div style="border: 1px solid #dde2e4; width: 100%">
+                <div style="border-bottom: 1px solid #dde2e4; height: 30px; line-height: 30px; font-weight: 600; background: #44a0fb; color: white">
+                    <span style="margin: 0 20px 0 20px;">Add Your Information ( COD Payment -- Cash On Delivery )</span>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <form action="" method="post">
+                            <div class="form-group">
+                                <label for="name-customer">Your Name</label>
+                                <input id="name-customer" name="nameCustomer" data-name="Name" type="text" class="info form-control" placeholder="Your name..." />
+                            </div>
+                            <div class="form-group">
+                                <label for="email-customer">Your Email</label>
+                                <input id="email-customer" name="emailCustomer" data-name="Email" type="email" class="info form-control" placeholder="Your email..." />
+                            </div>
+                            <div class="form-group">
+                                <label for="address-customer">Address</label>
+                                <input id="address-customer" name="addressCustomer" data-name="Address" type="text" class="info form-control" placeholder="Your address..." />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone-customer">Phone</label>
+                                <input id="phone-customer" name="phoneCustomer" data-name="Phone" type="text" class="info form-control" placeholder="Your phone..." />
+                            </div>
+                            <center style=" padding-bottom 15px;">
+                                <button type="button" id="addOrderBtn" class="btn btn-sm" style="width: 45%; background: #44a0fb; color: white;">
+                                    BUY <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                </button>
+                            </center>
+                        </form>
+                        <script>
+                            function validateInformation() {
+                                var failBlank = false;
+                                $(".info").each(function () {
+                                    if ($(this).val() == "") {
+                                        alertify.set('notifier', 'position', 'top-right');
+                                        alertify.error("Input " + $(this).attr("data-name") + " please!!!");
+                                        $(this).css("border-color", "red");
+                                        fail = true;
+                                    }
+                                    else {
+                                        $(this).css("border-color", "#ccc");
+                                        $(this).focus(function () {
+                                            $(this).css("border-color", "#66AFE9");
+                                        })
+                                        $(this).focusout(function () {
+                                            $(this).css("border-color", "#ccc");
+                                        })
+                                    }
+                                })
+                                var failPhone = false;
+                                var patt = new RegExp("(09|01[2|6|8|9])+([0-9]{8})\\b");
+                                var res = patt.test($("#phone-customer").val());
+                                if (!res) {
+                                    alertify.set('notifier', 'position', 'top-right');
+                                    alertify.error("Wrong format phone!!! ");
+                                    $("#phone-customer").css("border-color", "red");
+                                    failPhone = true;
+                                }
+                                else {
+                                    $("#phone-customer").css("border-color", "#ccc");
+                                    $("#phone-customer").focus(function () {
+                                        $("#phone-customer").css("border-color", "#66AFE9");
+                                    })
+                                    $("#phone-customer").focusout(function () {
+                                        $("#phone-customer").css("border-color", "#ccc");
+                                    })
+                                    failPhone = false;
+                                }
+                                console.log(failPhone && failBlank)
+                                return (failPhone || failBlank);
+                            }
+
+                            var firstClick = false;
+                            $("#addOrderBtn").click(function (e) {
+                                if (!validateInformation()) {
+                                    if (!firstClick) {
+                                        firstClick = true;
+                                        var name = $("#name-customer").val();
+                                        var email = $("#email-customer").val();
+                                        var address = $("#address-customer").val();
+                                        var phone = $("#phone-customer").val();
+                                        insertOrder(name, email, address, phone);
+                                    }
+                                }
+                            })
+
+                            function insertOrder(name, email, address, phone) {
+                                alertify.set('notifier', 'position', 'top-center');
+                                canDismiss = false;
+                                var msg = alertify.message('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i>', -1);
+                                msg.ondismiss = function () { return canDismiss; };
+                                $.ajax({
+                                    url: "/Payment/Create/",
+                                    type: "post",
+                                    data: {
+                                        nameCustomer: name,
+                                        emailCustomer: email,
+                                        phoneCustomer: phone,
+                                        addressCustomer: address
+                                    },
+                                    success: function (result) {
+                                        if (result.added) {
+                                            canDismiss = true;
+                                            msg.dismiss();
+                                            addToCartSuccess();
+                                            setTimeout(redirectToHome, 1000);
+                                        }
+                                        else {
+                                            canDismiss = true;
+                                            msg.dismiss();
+                                            error();
+                                            reloadPage();
+                                        }
+                                    },
+                                    error: function () {
+                                        error();
+                                    }
+                                });
+                            }
+
+                            function redirectToHome() {
+                                var canDismiss = false;
+                                var duration = 3;
+                                var msg = alertify.message('Go to home in ' + duration + ' seconds.', 3, function () { clearInterval(interval); }).dismissOthers();
+                                var interval = setInterval(function () {
+                                    msg.setContent('Go to home in ' + (--duration) + ' seconds.');
+                                }, 1000);
+                                msg.ondismiss = function () { return canDismiss; };
+                                setTimeout(function () {
+                                    canDismiss = true;
+                                    window.location.replace("/Home");
+                                }, 3000);
+                            }
+
+                            function reloadPage(){
+                                var canDismiss = false;
+                                var duration = 3;
+                                var msg = alertify.message('Reload page in' + duration + ' seconds.', 3, function () { clearInterval(interval); });
+                                var interval = setInterval(function () {
+                                    msg.setContent('Auto-dismiss in ' + (--duration) + ' seconds.');
+                                }, 1000);
+                                msg.ondismiss = function () { return canDismiss; };
+                                setTimeout(function () {
+                                    canDismiss = true;
+                                    location.reload();
+                                }, 3000);
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-offset-1 col-md-5">
+            <div style="border: 1px solid #dde2e4; width: 100%">
+                <div style="border-bottom: 1px solid #dde2e4; height: 30px; line-height: 30px; font-weight: 600;background: #44a0fb; color: white">
+                    <span style="margin: 0 20px 0 20px;">Order's Information</span>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <center>
+                            <table class="table" style="width: 95%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th style="text-align: center">Quantity</th>
+                                        <th style="text-align: center">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                {
+                                        <tr id="row_@item.Product.ID">
+                                            <td>@item.Product.Name</td>
+                                            <td style="text-align: center">@item.Quantity</td>
+                                            <td style="text-align: center" class="priceRow" data-unit-price="@item.Product.Price">$@(item.Product.Price * item.Quantity)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </center>
+                    </div>
+                </div>
+                <div style="width: 100%; background: #44a0fb; color: white" ">
+                    <center><span style="font-size: 30px;">Total Price:  $<span id="totalPrice"></span></span></center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var regexPhone = "(09|01[2|6|8|9])+([0-9]{8})\\b";
+    $(document).ready(function () {
+        var totalPrice = 0;
+        $(".priceRow").each(function () {
+            var temp = $(this).html();
+            
+            totalPrice += Number.parseFloat(temp.substr(1));
+        })
+        $("#totalPrice").html(totalPrice)
+    })
+    function addToCartSuccess() {
+        alertify.set('notifier', 'position', 'top-center');
+        alertify.success('Added to cart');
+    }
+    function error() {
+        alertify.set('notifier', 'position', 'top-center');
+        alertify.error('Error!!!');
+    }
+</script>
+

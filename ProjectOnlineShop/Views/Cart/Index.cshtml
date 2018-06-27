@@ -1,0 +1,159 @@
+﻿@model List<ProjectOnlineShop.Models.CartItem>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+
+<!-- breadcrumbs -->
+<div class="container">
+    <ol class="breadcrumb breadcrumb1">
+        <li><a href="/">Home</a></li>
+        <li class="active">Cart</li>
+    </ol>
+    <div class="clearfix"> </div>
+</div>
+<!-- //breadcrumbs -->
+
+<div class="container" style="min-height: 300px">
+    <h2>Your Cart</h2> <br />
+    @if (Model.Count != 0)
+    {
+        <span>Total price: <span id="total_price"></span></span><br />
+
+        <button class="btn btn-info" type="button" onclick="window.location.replace('/payment');" style="position: fixed; top: 55%; right: 20px;">
+            <i class="fa fa-money"></i> Pay
+        </button>
+        <div id="loadingAdd" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" style="top: 250px; left: 550px">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <h3 style="color: white"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></h3>
+            </div>
+        </div>
+        <table class="table table-striped" style="text-align: center;">
+            <thead>
+                <tr>
+                    <th style="text-align: center">ID</th>
+                    <th style="text-align: center">Name</th>
+                    <th style="text-align: center">Image</th>
+                    <th style="text-align: center">Price</th>
+                    <th style="text-align: center">Quantity</th>
+                    <th style="text-align: center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="row_@item.Product.ID">
+                        <td>#@item.Product.ID</td>
+                        <td>@item.Product.Name</td>
+                        <td width="10%"><img width="100%" src="@item.Product.Image" /></td>
+                        <td><input type="number" onscroll="no" class="quantity" id="@item.Product.ID" value="@item.Quantity" min="1" /></td>
+                        <td class="price" id="price_@item.Product.ID" data-price="@item.Product.Price" data-total-price="@(item.Product.Price * item.Quantity)">$@(item.Product.Price * item.Quantity)</td>
+                        <td>
+                            <a href="javascript:void(0)" onclick="deleteCart(@item.Product.ID)">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <script>
+                setInterval(function () {
+                    var totalPrice = 0;
+                    $(".price").each(function () {
+                        totalPrice += parseFloat($(this).attr("data-total-price"));
+                    })
+
+                    if (totalPrice[0] == "0") {
+                        totalPrice = totalPrice.substr(1);
+                    }
+                    $("#total_price").html("$" + totalPrice)
+                }, 0);
+
+                $(".quantity").each(function (e) {
+                    $(this).change(function (e) {
+                        updateQuantity($(this));
+                    })
+                });
+
+                function updateQuantity(sender) {
+                    if(sender.val() <= 0 || sender.val() == ""){
+                        alertify.set('notifier', 'position', 'top-right');
+                        alertify.error('Quantity must be greater than 0');
+                    }
+                    else{
+                        var price = $("#price_" + sender.attr("id")).attr("data-price");
+                        $("#price_" + sender.attr("id")).html("$" + price * sender.val())
+                        $("#price_" + sender.attr("id")).attr("data-total-price", price * sender.val());
+                        updateItem(sender.attr("id"), sender.val());
+                    }
+                }
+
+                function updateItem(idProduct, quantity) {
+                    $("#loadingAdd").modal("toggle");
+                    $.ajax({
+                        url: "/Cart/Update/",
+                        type: "get",
+                        data: {
+                            productID: idProduct,
+                            quantity: quantity
+                        },
+                        success: function (result) {
+                            $("#loadingAdd").modal("toggle");
+                            updateQuantitySuccess();
+                        },
+                        error: function () {
+                            $("#loadingAdd").modal("toggle");
+                            alertify.error('Error!!!');
+                        }
+                    });
+                }
+
+                function deleteCart(idProduct) {
+                    $("#loadingAdd").modal("toggle");
+                    $.ajax({
+                        url: "/Cart/Delete/",
+                        type: "get",
+                        data: {
+                            productID: idProduct,
+                        },
+                        success: function (result) {
+                            $("#loadingAdd").modal("toggle");
+                            $('#row_' + idProduct).remove();
+                            addItemInCartSuccess();
+                        },
+                        error: function () {
+                            $("#loadingAdd").modal("toggle");
+                            alertify.error('Error!!!');
+                        }
+                    });
+                }
+        </script>
+    }
+    else
+    {
+        <h2 style="margin-left: 20px;"><i>No products in your cart!!!</i></h2>
+    }
+    <br />
+</div>
+<script>
+
+    function addItemInCartSuccess() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Deleted successfully');
+    }
+
+    function error() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.error('Error!!!');
+    }
+
+    function updateQuantitySuccess() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Updated successfully');
+    }
+
+</script>
+
+
+

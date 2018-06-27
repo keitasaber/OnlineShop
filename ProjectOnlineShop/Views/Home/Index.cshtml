@@ -1,0 +1,31 @@
+﻿@model List<Model.EF.ProductCategory>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+    <!-- Wellcome -->
+    @{ Html.RenderAction("FeaturedProduct", "ChildAction"); }
+    <!-- Category List -->
+    <div class="deals">
+        <div class="container">
+            <h3 class="w3ls-title">Quick Category Product </h3>
+            <div class="deals-row">
+                @{Random rand = new Random(); }
+                @foreach (var item in Model)
+                {
+                    int num = rand.Next(6);
+                    string style = "wthree-btn wthree" + num;
+                    <div class="col-md-3 focus-grid">
+                        <a href="/category/@item.MetaTitle-@item.ID" class="@style">
+                            <div class="focus-image"><i class="fa @item.Icon"></i></div>
+                            <h4 class="clrchg">@item.Name</h4>
+                        </a>
+                    </div>
+                }
+                <div class="clearfix"> </div>
+            </div>
+        </div>
+    </div>
+    <!-- //deals -->
+

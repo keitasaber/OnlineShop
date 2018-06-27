@@ -1,0 +1,129 @@
+﻿@using Model.EF
+@model List<Category>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+
+<!-- breadcrumbs -->
+<div class="container">
+    <ol class="breadcrumb breadcrumb1">
+        <li><a href="/">Home</a></li>
+        <li class="active">News</li>
+    </ol>
+    <div class="clearfix"> </div>
+</div>
+<!-- //breadcrumbs -->
+
+<div class="container-fluid" style="padding-bottom: 50px; min-height: 350px;">
+    <div class="row">
+        <div class="col-md-2 col-md-offset-1">
+            <ul class="list-group" style="padding-top: 20px;">
+                @foreach (var item in Model)
+                {
+                    <li style="cursor: pointer" class="list-group-item" data-id="@item.ID" onclick="clickCategory('@item.ID'); setActive(this)">@item.Name</li>
+                }
+            </ul>
+        </div>
+        <div id="news" class="col-md-8">
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#news").html('<center "iconLoading"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></center>');
+        $(".list-group-item:first-child").attr("class", "list-group-item active");
+        clickCategory($(".list-group-item:first-child").attr("data-id"));
+    })
+
+    function setActive(sender) {
+        $(".list-group-item").attr("class", "list-group-item")
+        $(sender).attr("class", "list-group-item active");
+    }
+
+    function clickCategory(id) {
+        $("#news").html('<center id = "iconLoading"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i></center>');
+        $.ajax({
+            url: "/News/GetData",
+            dataType: "json",
+            type: "get",
+            data: {
+                idCategory: id,
+                currentIndex: 1
+            },
+            success: function (data) {
+                if (data.success) {
+                    handelData(data.data, 0)
+                    if (data.checkNext) {
+                        $("#news").append('<button class="btn btn-default col-md-12" style="color: #288AD6; margin-top: 15px" id="btnLoadMore" onClick="loadMore(' + data.nextPage + ', ' + id + '); this.remove()">Load more <i class="fa fa-caret-down" aria-hidden="true"></i></button>')
+                    }
+                }
+            },
+            error: function () {
+                alert(false);
+            }
+        });
+    }
+
+    function loadMore(nextPage, id) {
+        $("#news").append('<center style = "margin-top: 30px;" id = "iconLoading"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></center>');
+        $.ajax({
+            url: "/News/GetData",
+            dataType: "json",
+            type: "get",
+            data: {
+                idCategory: id,
+                currentIndex: nextPage
+            },
+            success: function (data) {
+                if (data.success) {
+                    handelData(data.data, 1)
+                    $("#iconLoading").remove();
+                    if (data.checkNext) {
+                        $("#news").append('<button class="btn btn-default col-md-12" style="color: #288AD6; margin-top: 15px" id="btnLoadMore" onClick="loadMore(' + data.nextPage + ', ' + id + '); this.remove()">Load more <i class="fa fa-caret-down" aria-hidden="true"></i></button>')
+                    }
+                }
+            },
+            error: function () {
+                alert(false);
+            }
+        });
+    }
+
+    function handelData(data, type) {
+        var json = JSON.parse(data);
+        if (json.length == 0) {
+            $("#news").html('<h2 style="padding-top: 20px"><i>Updating!!!</i></h2>');
+            return;
+        }
+        var content = "";
+        for (var i = 0; i < json.length; i++) {
+            content += '<div class="news-container" onClick="detailNews(\'' + json[i].MetaTitle.trim().replace(/"/g, "").replace(/'/g, "") + '\',' + json[i].ID + ')">';
+            content += '<div class="news-thumb"><img src="' + json[i].Image + '" /></div>';
+            content += '<div class="news-content">';
+            content += '<h3 class="news-title"><a href="javascript:void(0)">' + json[i].Name + ' </a></h3>';
+            if (json[i].Description == null || json[i].Description.trim() == "") { json[i].Description = json[i].Name }
+            content += '<p>' + json[i].Description + '</p>';
+            content += '</div>';
+            content += '</div>';
+        }
+        if (type == 0) {
+            $("#news").html(content);
+        }
+        else {
+            $("#news").append(content);
+        }
+    }
+
+    function detailNews(metaTitle, id) {
+        console.log(metaTitle + " : " + id);
+        window.location.replace('/news/' + metaTitle + '-' + id);
+    }
+
+
+
+
+</script>

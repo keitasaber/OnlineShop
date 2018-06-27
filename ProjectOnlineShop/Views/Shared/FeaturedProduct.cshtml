@@ -1,0 +1,116 @@
+﻿@using Model.ViewModel;
+@using Model.EF;
+@model Dictionary<ProductViewModel, string>
+@{
+    Layout = null;
+}
+
+<!-- welcome -->
+<div class="welcome">
+    <div class="container">
+        <div class="welcome-info">
+            <div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
+                <ul id="myTab" class=" nav-tabs" role="tablist">
+                    @{  string activeTab = "active";
+                        string active = "active";
+                    }
+                    @foreach (ProductCategory item in ViewBag.FeaturedProductCateogries)
+                    {
+                        <li role="presentation" class="@active">                            
+                            <a href="#@item.ID" role="tab" id="@item.ID-tab" data-toggle="tab">
+                                <i class="fa @item.Icon" aria-hidden="true"></i>
+                                <h5>@item.Name</h5>
+                            </a>
+                        </li>
+                        active = "";
+                    }
+                </ul>
+                <div class="clearfix"> </div>
+                <div id="loadingAdd" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false" style="top: 250px;">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <h3 style="color: white"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i></h3>
+                    </div>
+                </div>
+                <h3 class="w3ls-title">Featured Products</h3>
+                <div id="myTabContent" class="tab-content">
+                    @foreach (ProductCategory item in ViewBag.FeaturedProductCateogries)
+                    {
+                        <div role="tabpanel" class="tab-pane fade in @activeTab" id="@item.ID" aria-labelledby="@item.ID-tab">
+                            <div class="tabcontent-grids">
+                                <script>
+                                    $(document).ready(function () {
+                                        $("#@item.Name-@item.ID").owlCarousel({
+                                            autoPlay: 3000, //Set AutoPlay to 3 seconds
+                                            items: 4,
+                                            itemsDesktop: [640, 5],
+                                            itemsDesktopSmall: [414, 4],
+                                            navigation: true
+                                        });
+                                    });
+                                </script>
+                                <div id="@item.Name-@item.ID" class="owl-carousel">
+                                    @foreach (var product in Model)
+                                    {
+                                        if (product.Key.CategoryID == item.ID)
+                                        {
+                                            <div class="item">
+                                                <div class="glry-w3agile-grids agileits">
+                                                    <a href="/detail/@product.Key.MetaTitle-@product.Key.ID">
+                                                        <img height="240" src="@product.Key.Image" alt="img">
+                                                    </a>
+                                                    <div class="view-caption agileits-w3layouts">
+                                                        <h4><a href="products1.html">@product.Key.Name</a></h4>
+                                                        <h5>$@product.Key.Price</h5>
+                                                        <button type="button" class="w3ls-cart" onclick="addCart(@product.Key.ID);"><i class="fa fa-cart-plus" aria-hidden="true"></i> Add to cart</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <script>
+                                    function addCart(idProduct) {
+                                        $("#loadingAdd").modal("toggle");
+                                        $.ajax({
+                                            url: "/Cart/AddItem/",
+                                            type: "get",
+                                            data: {
+                                                productID: idProduct,
+                                                quantity: 1
+                                            },
+                                            success: function (result) {
+                                                if (result.added) {
+                                                    $("#loadingAdd").modal("toggle");
+                                                    addToCartSuccess();
+                                                };
+                                            },
+                                            error: function () {
+                                                $("#loadingAdd").modal("toggle");
+                                                error();
+                                            }
+                                        });
+                                        
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        activeTab = "";
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //welcome -->
+<script>
+    function addToCartSuccess() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Added to cart');
+    }
+    function error() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.error('Error!!!');
+    }
+
+</script>

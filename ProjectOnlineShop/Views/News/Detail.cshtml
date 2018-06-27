@@ -1,0 +1,27 @@
+﻿@using Model.ViewModel
+@model ContentViewModel
+@{
+    ViewBag.Title = "Detail";
+    Layout = "~/Views/Shared/_Layouts.cshtml";
+}
+@{ Html.RenderAction("CategoryInHeader", "ChildAction"); }
+
+<!-- breadcrumbs -->
+<div class="container">
+    <ol class="breadcrumb breadcrumb1">
+        <li><a href="/">Home</a></li>
+        <li class=""><a href="/news">News</a></li>
+        <li class="active">@Model.MetaTitle</li>
+    </ol>
+    <div class="clearfix"> </div>
+</div>
+<!-- //breadcrumbs -->
+
+<div class="container-fluid" style="padding-bottom: 50px;">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1" id="news-detail-content">
+            @Html.Raw(System.Web.HttpUtility.HtmlDecode(Model.Detail))
+        </div>
+    </div>
+</div>
+

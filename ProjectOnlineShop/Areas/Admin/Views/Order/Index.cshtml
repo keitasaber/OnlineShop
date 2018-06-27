@@ -1,0 +1,173 @@
+﻿@model PagedList.IPagedList<Model.EF.Order>
+@using PagedList.Mvc
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layouts.cshtml";
+}
+
+@section header{
+    List order
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                @using (Html.BeginForm("Index", "Order", FormMethod.Get))
+                {
+                    <div class="row">
+                        <div class="col-lg-12 form-group">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" value="" name="customerName" placeholder="customer name..." />
+                            </div>
+                            <div class="col-md-3">
+                                <input type="datetime-local" value="@ViewBag.Date1" id="date1" class="form-control" name="date1" />
+                            </div>
+                            <div class="col-md-3">
+                                <input type="datetime-local" value="@ViewBag.Date2" class="form-control" name="date2" />
+                            </div>
+                            <div class="col-md-2">
+                                <select id="state" name="state" class="form-control">
+                                    <option @(ViewBag.State == true ? "Selected" : "") value="true">Done</option>
+                                    <option @(ViewBag.State == false ? "Selected" : "") value="false">Doing</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-default" type="button"><a href="/Admin/Order">Reset</a></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover text-center">
+                        <thead>
+                            <tr>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">Name customer</th>
+                                <th class="text-center">Orderd date</th>
+                                <th class="text-center">State</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ID</td>
+                                    <td>@item.CustomerName</td>
+                                    <td>@item.CreatedDate</td>
+                                    <td><a href="javascript:void(0)" onclick="changeStateOrder(@item.ID, this)" >@(@item.Status == true ? "Done" : "Doing")</a></td>
+                                    <td><a href="javascript:void(0)" onclick="viewDetail(@item.ID)">View Detail</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <!-- Modal -->
+                    <div id="orderDetailModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Order Detail</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center">ID</th>
+                                                <th>Product Name</th>
+                                                <th style="text-align: center">Quantity</th>
+                                                <th style="text-align: center">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="detailOrderBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal -->
+                    <script>
+                        function changeStateOrder(orderID, sender){
+                            $.ajax({
+                                url: "/Order/Update/",
+                                type: "get",
+                                data: {
+                                    id: orderID,
+                                },
+                                success: function (result) {
+                                    if(result.data){
+                                        $(sender).html("Done")
+                                        Updated();
+                                    }
+                                    else{
+                                        $(sender).html("Doing")
+                                        Updated();
+                                    }
+                                },
+                                error: function () {
+                                }
+                            });
+                        }
+                        
+                        function viewDetail(orderID) {
+                            $.ajax({
+                                url: "/Order/GetOrderDetail/",
+                                type: "get",
+                                data: {
+                                    id: orderID,
+                                },
+                                success: function (result) {
+                                    if (result.search) {
+                                        handleData(JSON.parse(result.data));
+                                        $('#orderDetailModal').modal('toggle');
+                                    }
+                                },
+                                error: function () {
+                                }
+                            });
+                        }
+
+                        function handleData(json){
+                            var content = "";
+                            for(var i = 0; i < json.length; i++){
+                                content += "<tr>";
+                                content += "<td style='text-align: center'>"+json[i].ProductID+"</td>";
+                                content += "<td>"+json[i].ProductName+"</td>";
+                                content += "<td style='text-align: center'>"+json[i].Quantity+"</td>";
+                                content += "<td style='text-align: center'>$"+json[i].UnitPrice * json[i].Quantity+"</td>";
+                                content += "</tr>";
+                            }
+                            $("#detailOrderBody").html(content);
+                        }
+                    </script>
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, @customerName = ViewBag.CustomerName, @date1 = ViewBag.Date1, @date2 = ViewBag.date2, @state = ViewBag.State }))
+                </div>
+                <!-- /.table-responsive -->
+
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+
+<script>
+    function Updated(){
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.success('Updated');
+    }
+</script>
+

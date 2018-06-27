@@ -1,0 +1,185 @@
+﻿@using Model.ViewModel
+
+@model List<ContentViewModel>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layouts.cshtml";
+}
+
+@section header{
+    List Content
+}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <button type="button" class="btn btn-default"><a href="/Admin/Content/Create">Create new content</a></button>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                @using (Html.BeginForm("Index", "Content", FormMethod.Get))
+                {
+                    <div class="row">
+                        <div class="col-lg-12 form-group">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" value="@ViewBag.name" name="name" placeholder="name..." />
+                            </div>
+                            <div class="col-md-2">
+                                <select id="state" name="state" class="form-control">
+                                    <option @ViewBag.AllState value="0">State (All)</option>
+                                    <option @ViewBag.LockState value="-1">Lock</option>
+                                    <option @ViewBag.OpenState value="1">Active</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.DropDownList("categoryID", (IEnumerable<SelectListItem>)ViewBag.Categories, new { @class = "form-control" });
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-default" type="submit">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-default" type="button"><a href="/Admin/Content">Reset</a></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.Count == 0)
+                {
+                    <h2><em>No Available!</em></h2>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover text-center">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">ID</th>
+                                    <th class="text-center">Name</th>
+                                    <th class="text-center">MetaTitle</th>
+                                    <th class="text-center">Image</th>
+                                    <th class="text-center">Category</th>
+                                    <th class="text-center">Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr id="row_@item.ID">
+                                        <td>@item.ID</td>
+                                        <td>@item.Name</td>
+                                        <td>@item.MetaTitle</td>
+                                        <td>
+                                            @if (item.Image == null)
+                                            {
+                                                <span>No Image</span>
+                                            }
+                                            else
+                                            {
+                                                <img width="100" src="@item.Image"/>
+                                            }
+                                        </td>
+                                        <td>@item.Category</td>
+                                        <td>@(item.Status == true ? "Active" : "Lock")</td>
+                                        <th>
+                                            <a href="/Admin/Content/Edit/@item.ID">Edit</a>
+                                            <a href="javascript:void(0)" onclick="deleted(@item.ID)">Delete</a>
+                                        </th>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                <!-- /.table-responsive -->
+
+                    if (ViewBag.TotalPage > 1)
+                    {
+                        int pageDisplay = (int)ViewBag.MaxPage;
+                        int totalPage = (int)ViewBag.TotalPage;
+                        int currentPage = (int)ViewBag.currentPage;
+
+                        var startPageIndex = Math.Max(1, currentPage - pageDisplay / 2);
+                        var endPageIndex = Math.Min(totalPage, currentPage + pageDisplay / 2);
+
+                        var link = "/Admin/Content/Index?page=";
+                        
+
+                        <!-- pagination -->
+                        <div class="pagination">
+                            <ul class="pagination">
+                                @if (currentPage > ViewBag.FirstPage)
+                                {
+                                    if (ViewBag.Name == null && ViewBag.State == null && ViewBag.CategoryID == null)
+                                    {
+                                        <li><a href="@link@ViewBag.PreviousPage">»</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="@link@ViewBag.PreviousPage&name=@ViewBag.Name&state=@ViewBag.State&categoryID=@ViewBag.CategoryID">«</a></li>
+                                    }
+                                }
+                                @for (int i = startPageIndex; i <= endPageIndex; i++)
+                                {
+                                    if (currentPage == i)
+                                    {
+                                        if (ViewBag.Name == null && ViewBag.State == null && ViewBag.CategoryID == null)
+                                        {
+                                            <li class="active"><a href="@link@i">@i</a></li>
+                                        }
+                                        else
+                                        {
+                                            <li class="active"><a href="@link@i&name=@ViewBag.Name&state=@ViewBag.State&categoryID=@ViewBag.CategoryID">@i</a></li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (ViewBag.Name == null && ViewBag.State == null && ViewBag.CategoryID == null)
+                                        {
+                                            <li><a href="@link@i">@i</a></li>
+                                        }
+                                        else
+                                        {
+                                            <li><a href="@link@i&name=@ViewBag.Name&state=@ViewBag.State&categoryID=@ViewBag.CategoryID">@i</a></li>
+                                        }
+                                    }
+                                }
+                                @if (currentPage < ViewBag.LastPage)
+                                {
+                                    if (ViewBag.Name == null && ViewBag.State == null && ViewBag.CategoryID == null)
+                                    {
+                                        <li><a href="@link@ViewBag.NextPage">»</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li><a href="@link@ViewBag.NextPage&name=@ViewBag.Name&state=@ViewBag.State&categoryID=@ViewBag.CategoryID">»</a></li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    <!--/.pagination -->
+                    }
+
+                }
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+
+<script>
+    function deleted(id) {
+        alertify.confirm('Message',
+            'Do you want to delete this ?',
+            function () { doDelete(id) },
+            function () {  }
+        );
+    }
+
+    function doDelete(id){
+        window.location.replace("/Admin/Content/Delete/" + id);
+    }
+</script>

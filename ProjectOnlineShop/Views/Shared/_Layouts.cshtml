@@ -1,0 +1,296 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Shop</title>
+    @*<meta name="viewport" content="width=device-width, initial-scale=1">*@
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="application/x-javascript">
+        addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+               function hideURLbar(){ window.scrollTo(0,1); } </script>
+    <!-- Custom Theme files -->
+    <link href="/Assets/Client/css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="/Assets/Client/css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="/Assets/Client/css/menu.css" rel="stylesheet" type="text/css" media="all" /> <!-- menu style -->
+    <link href="/Assets/Client/css/ken-burns.css" rel="stylesheet" type="text/css" media="all" /> <!-- banner slider -->
+    <link href="/Assets/Client/css/animate.min.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="/Assets/Client/css/owl.carousel.css" rel="stylesheet" type="text/css" media="all"> <!-- carousel slider -->
+    <!-- //Custom Theme files -->
+    <!-- font-awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="/Assets/Client/css/font-awesome.css" rel="stylesheet">
+    <!-- //font-awesome icons -->
+    <!-- js -->
+    <script src="/Assets/Client/js/jquery-2.2.3.min.js"></script>
+    <!-- //js -->
+    <!-- web-fonts -->
+    <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lovers+Quarrel' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Offside' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Tangerine:400,700' rel='stylesheet' type='text/css'>
+    <!-- web-fonts -->
+    <script src="/Assets/Client/js/jquery-2.2.3.min.js"></script>
+    <!--flex slider-->
+    <script defer src="/Assets/Client/js/jquery.flexslider.js"></script>
+    <link rel="stylesheet" href="/Assets/Client/css/flexslider.css" type="text/css" media="screen" />
+    <script src="/Assets/Client/js/imagezoom.js"></script>
+    <script>
+        // Can also be used with $(document).ready()
+        $(window).load(function () {
+            $('.flexslider').flexslider({
+                animation: "slide",
+                controlNav: "thumbnails"
+            });
+        });
+    </script>
+    <!--/flex slider-->
+    <script src="/Assets/Client/js/owl.carousel.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#owl-demo").owlCarousel({
+                autoPlay: 3000, //Set AutoPlay to 3 seconds
+                items: 4,
+                itemsDesktop: [640, 5],
+                itemsDesktopSmall: [480, 2],
+                navigation: true
+
+            });
+        });
+    </script>
+    <script src="/Assets/Client/js/jquery-scrolltofixed-min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+
+            // Dock the header to the top of the window when scrolled past the banner. This is the default behaviour.
+
+            $('.header-two').scrollToFixed();
+            // previous summary up the page.
+
+            var summaries = $('.summary');
+            summaries.each(function (i) {
+                var summary = $(summaries[i]);
+                var next = summaries[i + 1];
+
+                summary.scrollToFixed({
+                    marginTop: $('.header-two').outerHeight(true) + 10,
+                    zIndex: 999
+                });
+            });
+        });
+    </script>
+    <!-- start-smooth-scrolling -->
+    <script type="text/javascript" src="/Assets/Client/js/move-top.js"></script>
+    <script type="text/javascript" src="/Assets/Client/js/easing.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $(".scroll").click(function (event) {
+                event.preventDefault();
+                $('html,body').animate({ scrollTop: $(this.hash).offset().top }, 1000);
+            });
+        });
+    </script>
+    <!-- //end-smooth-scrolling -->
+    <!-- smooth-scrolling-of-move-up -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var defaults = {
+                containerID: 'toTop', // fading element id
+                containerHoverID: 'toTopHover', // fading element hover id
+                scrollSpeed: 1200,
+                easingType: 'linear'
+            };
+
+            $().UItoTop({ easingType: 'easeOutQuart' });
+
+        });
+    </script>
+    <!-- //smooth-scrolling-of-move-up -->
+    <!-- the jScrollPane script -->
+    <script type="text/javascript" src="/Assets/Client/js/jquery.jscrollpane.min.js"></script>
+    <script type="text/javascript" id="sourcecode">
+        $(function () {
+            $('.scroll-pane').jScrollPane();
+        });
+    </script>
+    <!-- //the jScrollPane script -->
+    <script type="text/javascript" src="/Assets/Client/js/jquery.mousewheel.js"></script>
+    <!-- the mousewheel plugin -->
+    <script src="/Assets/Client/js/bootstrap.js"></script>
+
+    <!-- Notify -->
+    <script src="~/Assets/Client/notify/js/alertify.js"></script>
+    <link href="~/Assets/Client/notify/css/alertify.css" rel="stylesheet" />
+    <link href="~/Assets/Client/notify/css/themes/default.css" rel="stylesheet" />
+
+    <style>
+        .post-container {
+            padding: 10px;
+            overflow: auto;
+            border-bottom: 1px dotted #dedede;
+        }
+
+        .post-container:hover {
+            background: #e8e8e8;
+        }
+
+        .post-thumb {
+            float: left;
+            width: 15%;
+        }
+
+        .post-content {
+            width: 84%;
+            text-align: left;
+            float: right;
+        }
+
+        .post-thumb img {
+            display: block;
+            width: 100%;
+        }
+
+        .news-container {
+            width: 100%;
+            overflow: auto;
+            border-bottom: 1px solid #dedede;
+            padding-bottom: 20px;
+            padding-top: 20px;
+        }
+
+        .news-thumb {
+            width: 27%;
+            margin-right: 15px;
+            float: left;
+        }
+
+        .news-thumb img {
+            width: 100%;
+            display: block;
+        }
+
+        .news-content {
+            width: 68%;
+            float: right;
+            word-break: break-all;
+        }
+
+        .news-title a {
+            text-decoration: none;
+            color: black;
+            font-size: 130%;
+        }
+
+        .news-container:hover .news-title a{
+            color: #288AD6;
+        }
+
+        .news-container:hover{
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- header -->
+    @{ Html.RenderAction("SearchInHeader", "ChildAction");}
+    <!-- //header -->
+    <!-- body -->
+    @RenderBody()
+    <!-- //body -->
+
+    <div class="copy-right">
+        <div class="container">
+            <p>© 2018 FPT HDHC . All rights reserved | Design by <a> HDHC</a></p>
+        </div>
+    </div>
+    <!-- cart-js -->
+    <script src="/Assets/Client/js/minicart.js"></script>
+    <script>
+        w3ls.render();
+
+        w3ls.cart.on('w3sb_checkout', function (evt) {
+            var items, len, i;
+
+            if (this.subtotal() > 0) {
+                items = this.items();
+
+                for (i = 0, len = items.length; i < len; i++) {
+                    items[i].set('shipping', 0);
+                    items[i].set('shipping2', 0);
+                }
+            }
+        });
+    </script>
+    <!-- //cart-js -->
+    <!-- countdown.js -->
+    <script src="/Assets/Client/js/jquery.knob.js"></script>
+    <script src="/Assets/Client/js/jquery.throttle.js"></script>
+    <script src="/Assets/Client/js/jquery.classycountdown.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#countdown1').ClassyCountdown({
+                end: '1388268325',
+                now: '1387999995',
+                labels: true,
+                style: {
+                    element: "",
+                    textResponsive: .5,
+                    days: {
+                        gauge: {
+                            thickness: .10,
+                            bgColor: "rgba(0,0,0,0)",
+                            fgColor: "#1abc9c",
+                            lineCap: 'round'
+                        },
+                        textCSS: 'font-weight:300; color:#fff;'
+                    },
+                    hours: {
+                        gauge: {
+                            thickness: .10,
+                            bgColor: "rgba(0,0,0,0)",
+                            fgColor: "#05BEF6",
+                            lineCap: 'round'
+                        },
+                        textCSS: ' font-weight:300; color:#fff;'
+                    },
+                    minutes: {
+                        gauge: {
+                            thickness: .10,
+                            bgColor: "rgba(0,0,0,0)",
+                            fgColor: "#8e44ad",
+                            lineCap: 'round'
+                        },
+                        textCSS: ' font-weight:300; color:#fff;'
+                    },
+                    seconds: {
+                        gauge: {
+                            thickness: .10,
+                            bgColor: "rgba(0,0,0,0)",
+                            fgColor: "#f39c12",
+                            lineCap: 'round'
+                        },
+                        textCSS: ' font-weight:300; color:#fff;'
+                    }
+
+                },
+                onEndCallback: function () {
+                    console.log("Time out!");
+                }
+            });
+        });
+    </script>
+    @RenderSection("childJavascript", required: false)
+    <!-- //countdown.js -->
+    <!-- menu js aim -->
+    <script src="/Assets/Client/js/jquery.menu-aim.js"> </script>
+    <script src="/Assets/Client/js/main.js"></script> <!-- Resource jQuery -->
+    <!-- Notify -->
+    <link href="~/Assets/Client/notify/css/alertify.css" rel="stylesheet" />
+
+</body>
+</html>
